@@ -1,42 +1,32 @@
 ![](../../workflows/gds/badge.svg) ![](../../workflows/docs/badge.svg) ![](../../workflows/test/badge.svg) ![](../../workflows/fpga/badge.svg)
 
-# Tiny Tapeout Verilog Project Template
+# MC14500B 1-bit microcontroller in a Tiny Tapeout micro tile (sky130)
 
-- [Read the documentation for project](docs/info.md)
+The MC14500B core from [MC14500B_IHP](https://github.com/alexandercoabad/MC14500B_IHP), cut down to fit the experimental sky130
+**micro tile** (`tiles: "micro"`: clk, rst_n, 8 inputs, 8 outputs, about 2999 um2 of core).
 
-## What is Tiny Tapeout?
+- [Datasheet](docs/info.md), [instruction set and address map](docs/ISA.md)
+- [src/project.v](src/project.v): one file, `tt_um_mc14500b_micro`: 27 flip-flops, 91 cells, about 1110 um2 in yosys with sky130_fd_sc_hd (about 37 % of the tile)
+- `src/config.json`, `src/no_synth.cells`: micro-tile hardening settings, as in MaligayangPasko_micro
 
-Tiny Tapeout is an educational project that aims to make it easier and cheaper than ever to get your digital and analog designs manufactured on a real chip.
+## What stays, what goes
 
-To learn more and get started, visit https://tinytapeout.com.
+| | Full SoC (1x2 tiles, IHP) | Micro |
+|---|---|---|
+| CPU core and all 16 opcodes | yes | **same** |
+| Program memory | 64 x 8 writable RAM (512 flops) | 32 x 8 ROM, two programs picked by `ui_in[7]` |
+| Scratch RAM | 8 bits | 4 bits |
+| Inputs | `ui_in[7:5]` readable, `ui_in[0]` edge flag | all 8 bits readable |
+| Output shift latch on `uo_out` | yes | yes |
+| Clock divider, edge detector | yes | removed |
+| `uio` (programming port, PC, write strobe) | yes | removed (no `uio` on a micro tile) |
 
-## Set up your Verilog project
+Because the program is a ROM, the chip runs the two built-in programs (echo `ui_in` to `uo_out`; a chain of logic ops over the inputs).
+To run something else, change the `case` in `src/project.v` (the model in `test/model.py` has the same ROM).
 
-1. Add your Verilog files to the `src` folder.
-2. Edit the [info.yaml](info.yaml) and update information about your project, paying special attention to the `source_files` and `top_module` properties. If you are upgrading an existing Tiny Tapeout project, check out our [online info.yaml migration tool](https://tinytapeout.github.io/tt-yaml-upgrade-tool/).
-3. Edit [docs/info.md](docs/info.md) and add a description of your project.
-4. Adapt the testbench to your design. See [test/README.md](test/README.md) for more information.
+## Tests
 
-The GitHub action will automatically build the ASIC files using [LibreLane](https://www.zerotoasiccourse.com/terminology/librelane/).
-
-## Enable GitHub actions to build the results page
-
-- [Enabling GitHub Pages](https://tinytapeout.com/faq/#my-github-action-is-failing-on-the-pages-part)
-
-## Resources
-
-- [FAQ](https://tinytapeout.com/faq/)
-- [Digital design lessons](https://tinytapeout.com/digital_design/)
-- [Learn how semiconductors work](https://tinytapeout.com/siliwiz/)
-- [Join the community](https://tinytapeout.com/discord)
-- [Build your design locally](https://www.tinytapeout.com/guides/local-hardening/)
-
-## What next?
-
-- [Submit your design to the next shuttle](https://app.tinytapeout.com/).
-- Edit [this README](README.md) and explain your design, how it works, and how to test it.
-- Share your project on your social network of choice:
-  - LinkedIn [#tinytapeout](https://www.linkedin.com/search/results/content/?keywords=%23tinytapeout) [@TinyTapeout](https://www.linkedin.com/company/100708654/)
-  - Mastodon [#tinytapeout](https://chaos.social/tags/tinytapeout) [@matthewvenn](https://chaos.social/@matthewvenn)
-  - X (formerly Twitter) [#tinytapeout](https://twitter.com/hashtag/tinytapeout) [@tinytapeout](https://twitter.com/tinytapeout)
-  - Bluesky [@tinytapeout.com](https://bsky.app/profile/tinytapeout.com)
+```sh
+cd test && make -B                 # cocotb: both programs, program select, reset, 6000 random clocks vs test/model.py
+python3 test/equiv/run_equiv.py    # 100 random programs, all opcodes, vs the original SoC (needs iverilog)
+```

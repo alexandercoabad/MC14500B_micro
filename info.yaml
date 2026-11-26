@@ -1,46 +1,44 @@
+
 # Tiny Tapeout project information
 project:
-  title:        ""      # Project title
-  author:       ""      # Your name
-  discord:      ""      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
-  description:  ""      # One line description of what your project does
+  title:        "MC14500B 1-bit Microcontroller (micro tile)"
+  author:       "Alexander Co Abad"      # Your name
+  discord:      "alexandercoabad_25756"      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
+  description:  "MC14500B 1-bit CPU core with a 32-word program ROM, 4 RAM bits and an 8-bit shift-out latch, in a micro tile"
   language:     "Verilog" # other examples include SystemVerilog, Amaranth, VHDL, etc
-  clock_hz:     0       # Clock frequency in Hz (or 0 if not applicable)
+  clock_hz:       50000000       # Clock frequency in Hz (or 0 if not applicable)
 
-  # How many tiles your design occupies? A single tile is about 167x108 uM.
-  tiles: "1x1"          # Valid values: 1x1, 1x2, 2x2, 3x2, 4x2, 6x2 or 8x2
+  # How many tiles your design occupies?
+  tiles: "micro"          # micro: a quarter-size experimental tile (clk, rst_n, ui_in, uo_out only)
 
   # Your top module name must start with "tt_um_". Make it unique by including your github username:
-  top_module:  "tt_um_example"
-
-  # List your project's source files here.
-  # Source files must be in ./src and you must list each source file separately, one per line.
-  # Don't forget to also update `PROJECT_SOURCES` in test/Makefile.
+  top_module:  "tt_um_mc14500b_micro"
+  
+  # List your project's source files here. Source files must be in ./src and you must list each source file separately, one per line:
   source_files:
     - "project.v"
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
-# This section is for the datasheet/website. Use descriptive names (e.g., RX, TX, MOSI, SCL, SEG_A, etc.).
 pinout:
   # Inputs
-  ui[0]: ""
-  ui[1]: ""
-  ui[2]: ""
-  ui[3]: ""
-  ui[4]: ""
-  ui[5]: ""
-  ui[6]: ""
-  ui[7]: ""
+  ui[0]: "in0 (read at address 4)"
+  ui[1]: "in1 (5)"
+  ui[2]: "in2 (6)"
+  ui[3]: "in3 (7)"
+  ui[4]: "in4 (8)"
+  ui[5]: "in5 (9)"
+  ui[6]: "in6 (A)"
+  ui[7]: "in7 (B) / PROGRAM SELECT: 0 = echo, 1 = logic chain"
 
   # Outputs
-  uo[0]: ""
-  uo[1]: ""
-  uo[2]: ""
-  uo[3]: ""
-  uo[4]: ""
-  uo[5]: ""
-  uo[6]: ""
-  uo[7]: ""
+  uo[0]: "OUT0 (shift-in latch, address C)"
+  uo[1]: "OUT1 (shift-in latch, address C)"
+  uo[2]: "OUT2 (shift-in latch, address C)"
+  uo[3]: "OUT3 (shift-in latch, address C)"
+  uo[4]: "OUT4 (shift-in latch, address C)"
+  uo[5]: "OUT5 (shift-in latch, address C)"
+  uo[6]: "OUT6 (shift-in latch, address C)"
+  uo[7]: "OUT7 (shift-in latch, address C)"
 
   # Bidirectional pins
   uio[0]: ""
