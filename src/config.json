@@ -13,8 +13,8 @@
 
   "//": "PL_TARGET_DENSITY_PCT - You can increase this if Global Placement fails with error GPL-0302.",
   "//": "Users have reported that values up to 80 worked well for them.",
-  "//": "60: the design is about 37% of the micro tile core (1114 um2 of 2999 um2, yosys + sky130_fd_sc_hd tt, before the flow adds buffers); the VGA project this file came from needed 88.",
-  "PL_TARGET_DENSITY_PCT": 60,
+  "//": "75: the teaching version is about 70% of the micro tile core (about 2100 um2 of 2999 um2, rough yosys + sky130_fd_sc_hd estimate, before the flow adds buffers; the first micro version was 1114 um2 at 60). If global placement fails with GPL-0302 raise it (up to 80 worked for others); if it still does not fit, drop the shadow output register or the debug view (see README).",
+  "PL_TARGET_DENSITY_PCT": 75,
 
   "//": "A micro tile is 2999 um2 of core. The PDK's list of cells that synthesis may not use (no_synth.cells) holds every drive-strength-1 gate and flop, so that the netlist starts at strength 2 and the resizer has room: on this tile that is a third of the area. src/no_synth.cells is the PDK's list (open_pdks 8afc834) without the _1 gates and dfxtp_1; the resizer still upsizes where timing asks.",
   "SYNTH_EXCLUDED_CELL_FILE": "dir::no_synth.cells",
@@ -28,7 +28,7 @@
   "PL_RESIZER_HOLD_SLACK_MARGIN": 0.1,
   "GRT_RESIZER_HOLD_SLACK_MARGIN": 0.05,
 
-  "//": "A clock tree for 27 flops within 65 um: one sink cluster and small buffers (small buffers instead of five clkbuf_16).",
+  "//": "A clock tree for 36 flops within 65 um: one sink cluster and small buffers (small buffers instead of five clkbuf_16).",
   "CTS_SINK_CLUSTERING_SIZE": 64,
   "CTS_SINK_CLUSTERING_MAX_DIAMETER": 120,
   "CTS_ROOT_BUFFER": "sky130_fd_sc_hd__clkbuf_4",

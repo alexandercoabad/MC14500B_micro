@@ -1,6 +1,8 @@
 // Lock-step equivalence: original tt_um_mc14500b_soc_extended (programmed
 // through its prog port) vs the micro core running the same program from ROM.
-// Compared every clock: uo_out, RR, IEN, OEN, skip, RAM[3:0], PC[3:0], random ui_in. Run via run_equiv.py.
+// Compared every clock: output register, RR, IEN, OEN, skip, RAM[3:0], PC[3:0], random ui_in.
+// The micro's output register (out_q) is compared, not its pins: uo_out is the published copy or the debug view.
+// The reference is patched by run_equiv.py with the micro's two deliberate changes. Run via run_equiv.py.
 `timescale 1ns/1ps
 module tb_equiv;
   reg clk = 0; always #10 clk = ~clk;
@@ -29,9 +31,9 @@ module tb_equiv;
     for (cyc = 0; cyc < 1200; cyc = cyc + 1) begin
       @(negedge clk);
       if ({uo_ref, ref_dut.r_rr, ref_dut.r_ien, ref_dut.r_oen, ref_dut.r_skip, ref_dut.ram_bank[3:0], ref_dut.pc[3:0]} !==
-          {uo_mic, mic_dut.rr, mic_dut.ien, mic_dut.oen, mic_dut.skip, mic_dut.ram, mic_dut.pc}) begin
+          {mic_dut.out_q, mic_dut.rr, mic_dut.ien, mic_dut.oen, mic_dut.skip, mic_dut.ram, mic_dut.pc}) begin
         errs = errs + 1;
-        if (errs < 5) $display("MISMATCH cyc %0d uo ref %02x micro %02x", cyc, uo_ref, uo_mic);
+        if (errs < 5) $display("MISMATCH cyc %0d out ref %02x micro %02x", cyc, uo_ref, mic_dut.out_q);
       end
       ui_ref = $random(seed); ui_mic = ui_ref;
     end
