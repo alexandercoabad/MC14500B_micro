@@ -14,6 +14,9 @@ from cocotb.triggers import RisingEdge, Timer
 
 from model import Micro
 
+# 20 ns clock; sample mid-cycle so RTL and delayed gate-level models both settle
+SAMPLE_DELAY_NS = 8
+
 
 async def start(dut):
     cocotb.start_soon(Clock(dut.clk, 20, unit="ns").start())
@@ -35,7 +38,10 @@ async def run_against_model(dut, model, stimulus, cycles):
         pc_before = model.pc
         exp = model.step(ui)
         await RisingEdge(dut.clk)
-        await Timer(1, unit="ns")
+        # Sample well after the edge: the gate-level sky130 models are built
+        # with -DUNIT_DELAY=#1, so a flop output (plus any buffer) settles a
+        # few ns after the clock. Sampling at +1 ns races that delay.
+        await Timer(SAMPLE_DELAY_NS, unit="ns")
         got = int(dut.uo_out.value)
         assert got == exp, f"cycle {c}: uo_out {got:#04x}, model {exp:#04x} (ui_in {ui:#04x}, pc {pc_before})"
         trace.append((pc_before, got))
@@ -51,7 +57,7 @@ async def test_reset(dut):
     for _ in range(11):
         await RisingEdge(dut.clk)
     dut.rst_n.value = 0
-    await Timer(5, unit="ns")
+    await Timer(SAMPLE_DELAY_NS, unit="ns")
     assert int(dut.uo_out.value) == 0, "async reset must clear uo_out"
     dut.rst_n.value = 1
     await Timer(1, unit="ns")
